@@ -4,6 +4,9 @@ pipeline {
 
     environment {
         PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+        SPRING_DATASOURCE_PASSWORD = credentials('civicpulse-db-password')
+        AZURE_STORAGE_CONNECTION_STRING = credentials('civicpulse-azure-connection')
     }
 
     stages {
