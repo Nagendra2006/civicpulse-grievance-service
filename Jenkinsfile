@@ -2,6 +2,10 @@ pipeline {
 
     agent any
 
+    environment {
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -22,9 +26,24 @@ pipeline {
             }
         }
 
+        stage('Verify Docker') {
+            steps {
+                sh '''
+                    echo "Docker location:"
+                    which docker
+
+                    echo "Docker version:"
+                    docker --version
+                '''
+            }
+        }
+
         stage('Docker Build') {
             steps {
-                sh 'docker build -t civicpulse-grievance-service:${BUILD_NUMBER} .'
+                sh '''
+                    docker build \
+                    -t civicpulse-grievance-service:${BUILD_NUMBER} .
+                '''
             }
         }
     }
