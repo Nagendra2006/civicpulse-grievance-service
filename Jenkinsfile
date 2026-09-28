@@ -46,6 +46,17 @@ pipeline {
                 '''
             }
         }
+
+        stage('Secret Scan') {
+            steps {
+                sh '''
+                    trivy fs \
+                      --scanners secret \
+                      --skip-dirs target \
+                      --exit-code 1 .
+                '''
+            }
+        }
     }
 
     post {
