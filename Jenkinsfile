@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-}
+    }
 
     stages {
 
@@ -26,6 +26,20 @@ pipeline {
             }
         }
 
+        stage('Secret Scan') {
+            steps {
+                sh '''
+                    echo "Running Trivy secret scan..."
+
+                    trivy fs \
+                      --scanners secret \
+                      --skip-dirs target \
+                      --exit-code 1 \
+                      .
+                '''
+            }
+        }
+
         stage('Verify Docker') {
             steps {
                 sh '''
@@ -43,17 +57,6 @@ pipeline {
                 sh '''
                     docker build \
                     -t civicpulse-grievance-service:${BUILD_NUMBER} .
-                '''
-            }
-        }
-
-        stage('Secret Scan') {
-            steps {
-                sh '''
-                    trivy fs \
-                      --scanners secret \
-                      --skip-dirs target \
-                      --exit-code 1 .
                 '''
             }
         }
