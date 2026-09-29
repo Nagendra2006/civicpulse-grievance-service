@@ -63,6 +63,17 @@ pipeline {
                 '''
             }
         }
+        stage('Docker Image Scan') {
+            steps {
+                sh '''
+                    echo "Scanning Docker image for vulnerabilities..."
+        
+                    trivy image \
+                      --severity HIGH,CRITICAL \
+                      civicpulse-grievance-service:${BUILD_NUMBER}
+                '''
+            }
+        }
     }
 
     post {
