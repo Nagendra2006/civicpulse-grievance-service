@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-
+        DOCKERHUB_USERNAME = "illuriganesh123"
         SPRING_DATASOURCE_PASSWORD = credentials('civicpulse-db-password')
         AZURE_STORAGE_CONNECTION_STRING = credentials('civicpulse-azure-connection')
     }
@@ -72,6 +72,32 @@ pipeline {
                       --severity HIGH,CRITICAL \
                       civicpulse-grievance-service:${BUILD_NUMBER}
                 '''
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-civicpulse',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login \
+                            -u "$DOCKER_USERNAME" \
+                            --password-stdin
+        
+                        docker tag \
+                            civicpulse-grievance-service:${BUILD_NUMBER} \
+                            ${DOCKER_USERNAME}/civicpulse-grievance-service:${BUILD_NUMBER}
+        
+                        docker push \
+                            ${DOCKER_USERNAME}/civicpulse-grievance-service:${BUILD_NUMBER}
+        
+                        docker logout
+                    '''
+                }
             }
         }
     }
